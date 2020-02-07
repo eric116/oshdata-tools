@@ -42,7 +42,7 @@ for url in project_page_urls:
     project_data.append(project_fields)
     print(project_fields[2] + " added")
 
-with open('oshwa_scrape_' + str(date.today) + '.csv', 'w') as f:
+with open('oshwa_scrape_' + str(date.today()) + '.csv', 'w') as f:
     writer = csv.writer(f)
     for row in project_data:
         writer.writerow(row)
