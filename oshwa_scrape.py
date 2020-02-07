@@ -1,4 +1,5 @@
 import csv
+from datetime import date
 from urllib import request
 from bs4 import BeautifulSoup as bs
 
@@ -8,14 +9,10 @@ project_list_page = request.urlopen(oshwa_domain + '/list.html')
 project_list_soup = bs(project_list_page, "html.parser")
 project_list = project_list_soup.find_all('tr', class_="project")
 
-#print(project_list[0])
-
 project_page_urls = []
 
 for project in project_list:
     project_page_urls.append(oshwa_domain + project.a['href'])
-
-#print(project_page_urls[0])
 
 project_data = []
 
@@ -32,8 +29,8 @@ for url in project_page_urls:
 
     project_types = ''
     for type in project_page_soup('div', class_='project__type'):
-        project_types += type.text + ' '
-    project_fields.append(project_types[:len(project_types)-1]) #Project Types
+        project_types += type.text + ', '
+    project_fields.append(project_types[:len(project_types)-2]) #Project Types
 
     project_fields.append(project_page_soup('div', class_="row")[1]('div', class_='column')[1].p.text) #Description
     project_fields.append(project_page_soup.find('span', class_='version').text) #Version
@@ -45,9 +42,7 @@ for url in project_page_urls:
     project_data.append(project_fields)
     print(project_fields[2] + " added")
 
-#print(project_data[0])
-
-with open('oshwa_scrape.csv', 'w') as f:
+with open('oshwa_scrape_' + str(date.today) + '.csv', 'w') as f:
     writer = csv.writer(f)
     for row in project_data:
         writer.writerow(row)
