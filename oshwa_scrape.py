@@ -15,6 +15,9 @@ for project in project_list:
     project_page_urls.append(oshwa_domain + project.a['href'])
 
 project_data = []
+project_data.append([
+    "UID", "Certification Date", "Project Name", "Website", "Creator", "Country", "Project Types",
+    "Description", "Version", "Hardware License", "Software License", "Documentation License", "Documentation Link"])
 
 for url in project_page_urls:
     project_fields = []
@@ -32,7 +35,7 @@ for url in project_page_urls:
         project_types += type.text + ', '
     project_fields.append(project_types[:len(project_types)-2]) #Project Types
 
-    project_fields.append(project_page_soup('div', class_="row")[1]('div', class_='column')[1].p.text) #Description
+    project_fields.append(project_page_soup('div', class_="row")[1]('div', class_='column')[1].text) #Description
     project_fields.append(project_page_soup.find('span', class_='version').text) #Version
     project_fields.append(project_page_soup.find('h6', text='Hardware').next_sibling.text) #Hardware License
     project_fields.append(project_page_soup.find('h6', text='Software').next_sibling.text) #Software License
