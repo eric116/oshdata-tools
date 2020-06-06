@@ -60,10 +60,10 @@ for url in project_page_urls:
         return (doc_url)
     
     def getResponseCode(doc_url):
-        mod_doc_url = sanitizeURL(doc_url)
-        print ('Probing ' + mod_doc_url)
+        sani_doc_url = sanitizeURL(doc_url)
+        print ('Probing ' + sani_doc_url)
         try:
-            conn = request.urlopen(mod_doc_url, context=ssl._create_unverified_context())
+            conn = request.urlopen(sani_doc_url, context=ssl._create_unverified_context())
             return conn.getcode()
         except HTTPError as e1:
             return e1.code
