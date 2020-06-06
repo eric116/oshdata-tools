@@ -1,9 +1,22 @@
+import argparse #for debugging
 import csv
 from datetime import date
 from urllib import request
 from urllib.error import HTTPError, URLError
 import ssl
 from bs4 import BeautifulSoup as bs
+
+#debugging switch
+parser = argparse.ArgumentParser(description='Create CSV of OSHWA Certified projects.')
+parser.add_argument('--debug', action='store_true', help='enable debugging of the documentation status check')
+args = parser.parse_args()
+global debug_enable
+if args.debug:
+    print ('Debugging Enabled')
+    debug_enable = True
+else:
+    print ('Debugging Disabled')
+    debug_enable = False
 
 oshwa_domain = 'https://certification.oshwa.org'
 
@@ -28,6 +41,10 @@ for url in project_page_urls:
     project_fields.append(project_page_soup.find('span', class_="id").text) #UID
     project_fields.append(project_page_soup.find('h3', text="Certification Date").next_sibling.text) #Certification Date
     project_fields.append(project_page_soup.h1.text) #Project Name
+    if debug_enable is True:
+        print ('Adding ' + project_fields[2] + '...')
+    else:
+        pass
     project_fields.append(project_page_soup.find('a', text="Project Website")['href']) #Website
     project_fields.append(project_page_soup.h2.contents[0]) #Creator
     project_fields.append(project_page_soup('h3', text="Country")[0].next_sibling.text) #Country
@@ -45,23 +62,38 @@ for url in project_page_urls:
     doc_url = project_page_soup.find('a', class_='documentation-link')['href']
     project_fields.append(doc_url) #Documentation Link
     
-    def sanitizeURL(doc_url):
+    def sanitizeURL(doc_url): #Define how to clean up doc_url so request.urlopen doesn't complain
         #global doc_url
         if '://' not in doc_url:
             doc_url="http://"+doc_url
-            print ('Scheme added')
+            if debug_enable is True:
+                print ('Scheme added')
+            else:
+                pass
         else:
-            print ('Scheme exists')
+            if debug_enable is True:
+                print ('Scheme exists')
+            else:
+                pass
         if ' ' in doc_url:
             doc_url = doc_url.replace(" ", "%20")
-            print ('Spaces replaced: New URL is ' + doc_url)
+            if debug_enable is True:
+                print ('Spaces replaced: New URL is ' + doc_url)
+            else:
+                pass
         else:
-            print ('No spaces to replace')
+            if debug_enable is True:
+                print ('No spaces to replace')
+            else:
+                pass
         return (doc_url)
     
-    def getResponseCode(doc_url):
+    def getResponseCode(doc_url): #Define how to probe the URL and handle errors
         sani_doc_url = sanitizeURL(doc_url)
-        print ('Probing ' + sani_doc_url)
+        if debug_enable is True:
+            print ('Probing ' + sani_doc_url)
+        else:
+            pass
         try:
             conn = request.urlopen(sani_doc_url, context=ssl._create_unverified_context())
             return conn.getcode()
@@ -75,7 +107,11 @@ for url in project_page_urls:
     project_fields.append(getResponseCode(doc_url)) #Documentation Status
 
     project_data.append(project_fields)
-    print(project_fields[2] + " added" + " | Doc Status = " + str(project_fields[13]))
+    if debug_enable is True:
+        print(project_fields[2] + " added" + " | Doc Status = " + str(project_fields[13]))
+    else:
+        print(project_fields[2] + " added")
+
 
 with open('oshwa_scrape_' + str(date.today()) + '.csv', 'w') as f:
     writer = csv.writer(f)
