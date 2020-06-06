@@ -1,6 +1,8 @@
 import csv
 from datetime import date
 from urllib import request
+from urllib.error import HTTPError, URLError
+import ssl
 from bs4 import BeautifulSoup as bs
 
 oshwa_domain = 'https://certification.oshwa.org'
@@ -17,7 +19,7 @@ for project in project_list:
 project_data = []
 project_data.append([
     "UID", "Certification Date", "Project Name", "Website", "Creator", "Country", "Project Types",
-    "Description", "Version", "Hardware License", "Software License", "Documentation License", "Documentation Link"])
+    "Description", "Version", "Hardware License", "Software License", "Documentation License", "Documentation Link", "Documentation Status"])
 
 for url in project_page_urls:
     project_fields = []
@@ -40,10 +42,40 @@ for url in project_page_urls:
     project_fields.append(project_page_soup.find('h6', text='Hardware').next_sibling.text) #Hardware License
     project_fields.append(project_page_soup.find('h6', text='Software').next_sibling.text) #Software License
     project_fields.append(project_page_soup.find('h6', text='Documentation').next_sibling.text) #Documentation License
-    project_fields.append(project_page_soup.find('a', class_='documentation-link')['href']) #Documentation Link
+    doc_url = project_page_soup.find('a', class_='documentation-link')['href']
+    project_fields.append(doc_url) #Documentation Link
+    
+    def sanitizeURL(doc_url):
+        #global doc_url
+        if '://' not in doc_url:
+            doc_url="http://"+doc_url
+            print ('Scheme added')
+        else:
+            print ('Scheme exists')
+        if ' ' in doc_url:
+            doc_url = doc_url.replace(" ", "%20")
+            print ('Spaces replaced: New URL is ' + doc_url)
+        else:
+            print ('No spaces to replace')
+        return (doc_url)
+    
+    def getResponseCode(doc_url):
+        mod_doc_url = sanitizeURL(doc_url)
+        print ('Probing ' + mod_doc_url)
+        try:
+            conn = request.urlopen(mod_doc_url, context=ssl._create_unverified_context())
+            return conn.getcode()
+        except HTTPError as e1:
+            return e1.code
+        except URLError as e2:
+            return e2.reason
+        except ssl.SSLError as e3:
+            return e3.reason
+
+    project_fields.append(getResponseCode(doc_url)) #Documentation Status
 
     project_data.append(project_fields)
-    print(project_fields[2] + " added")
+    print(project_fields[2] + " added" + " | Doc Status = " + str(project_fields[13]))
 
 with open('oshwa_scrape_' + str(date.today()) + '.csv', 'w') as f:
     writer = csv.writer(f)
