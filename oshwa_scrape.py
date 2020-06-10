@@ -95,7 +95,7 @@ for url in project_page_urls:
         else:
             pass
         try:
-            conn = request.urlopen(sani_doc_url, context=ssl._create_unverified_context())
+            conn = request.urlopen(sani_doc_url, timeout=5, context=ssl._create_unverified_context())
             return conn.getcode()
         except HTTPError as e1:
             return e1.code
@@ -103,6 +103,8 @@ for url in project_page_urls:
             return e2.reason
         except ssl.SSLError as e3:
             return e3.reason
+        except socket.timeout as e4:
+            return 'Timed Out'
 
     project_fields.append(getResponseCode(doc_url)) #Documentation Status
 
