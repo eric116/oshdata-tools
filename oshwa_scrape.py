@@ -7,10 +7,9 @@ import ssl
 import socket
 from bs4 import BeautifulSoup as bs
 
-#debugging switch
 parser = argparse.ArgumentParser(description='Create CSV of OSHWA Certified projects.')
-parser.add_argument('--debug', action='store_true', help='enable debugging of the documentation status check')
-parser.add_argument('--doccheck', action='store_true', help='return HTTP status codes for documentation links')
+parser.add_argument('--debug', action='store_true', help='enable debugging of the documentation status check') #debugging switch
+parser.add_argument('--doccheck', action='store_true', help='return HTTP status codes for documentation links') #documentation check switch
 args = parser.parse_args()
 global debug_enable
 if args.debug:
