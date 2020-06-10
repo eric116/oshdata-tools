@@ -4,6 +4,7 @@ from datetime import date
 from urllib import request
 from urllib.error import HTTPError, URLError
 import ssl
+import socket
 from bs4 import BeautifulSoup as bs
 
 #debugging switch
