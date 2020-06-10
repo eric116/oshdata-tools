@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup as bs
 #debugging switch
 parser = argparse.ArgumentParser(description='Create CSV of OSHWA Certified projects.')
 parser.add_argument('--debug', action='store_true', help='enable debugging of the documentation status check')
+parser.add_argument('--doccheck', action='store_true', help='return HTTP status codes for documentation links')
 args = parser.parse_args()
 global debug_enable
 if args.debug:
@@ -106,7 +107,10 @@ for url in project_page_urls:
         except socket.timeout as e4:
             return 'Timed Out'
 
-    project_fields.append(getResponseCode(doc_url)) #Documentation Status
+    if args.doccheck:
+        project_fields.append(getResponseCode(doc_url)) #Documentation Status
+    else:
+        project_fields.append('Not Checked') 
 
     project_data.append(project_fields)
     if debug_enable is True:
