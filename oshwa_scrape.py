@@ -68,7 +68,8 @@ def getResponseCode(doc_url): #Define how to probe the URL and handle errors
     else:
         pass
     try:
-        conn = request.urlopen(sani_doc_url, timeout=5, context=ssl._create_unverified_context())
+        req = request.Request(sani_doc_url, headers={'User-Agent' : "OSHdata browser"})
+        conn = request.urlopen(req, timeout=5, context=ssl._create_unverified_context())
         return conn.getcode()
     except HTTPError as e1:
         return e1.code
