@@ -35,6 +35,51 @@ project_data.append([
     "UID", "Certification Date", "Project Name", "Website", "Creator", "Country", "Project Types",
     "Description", "Version", "Hardware License", "Software License", "Documentation License", "Documentation Link", "Documentation Status"])
 
+def sanitizeURL(doc_url): #Define how to clean up doc_url so request.urlopen doesn't complain
+    #global doc_url
+    if '://' not in doc_url:
+        doc_url="http://"+doc_url
+        if debug_enable is True:
+            print ('Scheme added')
+        else:
+            pass
+    else:
+        if debug_enable is True:
+            print ('Scheme exists')
+        else:
+            pass
+    if ' ' in doc_url:
+        doc_url = doc_url.replace(" ", "%20")
+        if debug_enable is True:
+            print ('Spaces replaced: New URL is ' + doc_url)
+        else:
+            pass
+    else:
+        if debug_enable is True:
+            print ('No spaces to replace')
+        else:
+            pass
+    return (doc_url)
+
+def getResponseCode(doc_url): #Define how to probe the URL and handle errors
+    sani_doc_url = sanitizeURL(doc_url)
+    if debug_enable is True:
+        print ('Probing ' + sani_doc_url)
+    else:
+        pass
+    try:
+        req = request.Request(sani_doc_url, headers={'User-Agent' : "OSHdata browser"})
+        conn = request.urlopen(req, timeout=5, context=ssl._create_unverified_context())
+        return conn.getcode()
+    except HTTPError as e1:
+        return e1.code
+    except URLError as e2:
+        return e2.reason
+    except ssl.SSLError as e3:
+        return e3.reason
+    except socket.timeout as e4:
+        return 'Timed Out'
+
 for url in project_page_urls:
     project_fields = []
     project_page = request.urlopen(url)
@@ -62,50 +107,6 @@ for url in project_page_urls:
     project_fields.append(project_page_soup.find('h6', text='Documentation').next_sibling.text) #Documentation License
     doc_url = project_page_soup.find('a', class_='documentation-link')['href']
     project_fields.append(doc_url) #Documentation Link
-    
-    def sanitizeURL(doc_url): #Define how to clean up doc_url so request.urlopen doesn't complain
-        #global doc_url
-        if '://' not in doc_url:
-            doc_url="http://"+doc_url
-            if debug_enable is True:
-                print ('Scheme added')
-            else:
-                pass
-        else:
-            if debug_enable is True:
-                print ('Scheme exists')
-            else:
-                pass
-        if ' ' in doc_url:
-            doc_url = doc_url.replace(" ", "%20")
-            if debug_enable is True:
-                print ('Spaces replaced: New URL is ' + doc_url)
-            else:
-                pass
-        else:
-            if debug_enable is True:
-                print ('No spaces to replace')
-            else:
-                pass
-        return (doc_url)
-    
-    def getResponseCode(doc_url): #Define how to probe the URL and handle errors
-        sani_doc_url = sanitizeURL(doc_url)
-        if debug_enable is True:
-            print ('Probing ' + sani_doc_url)
-        else:
-            pass
-        try:
-            conn = request.urlopen(sani_doc_url, timeout=5, context=ssl._create_unverified_context())
-            return conn.getcode()
-        except HTTPError as e1:
-            return e1.code
-        except URLError as e2:
-            return e2.reason
-        except ssl.SSLError as e3:
-            return e3.reason
-        except socket.timeout as e4:
-            return 'Timed Out'
 
     if args.doccheck:
         project_fields.append(getResponseCode(doc_url)) #Documentation Status
