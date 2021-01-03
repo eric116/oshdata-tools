@@ -77,7 +77,7 @@ def getResponseCode(doc_url): #Define how to probe the URL and handle errors
         return e2.reason
     except ssl.SSLError as e3:
         return e3.reason
-    except socket.timeout as e4:
+    except socket.timeout:
         return 'Timed Out'
 
 for url in project_page_urls:
