@@ -19,7 +19,7 @@ for element in data:
     element.pop('previousVersions', None)
     element.pop('citations', None)
 
-with open('oshwa_scrape_' + str(date.today()) + '.csv', 'w',encoding="utf-8") as f:
+with open('oshwa_api_' + str(date.today()) + '.csv', 'w',encoding="utf-8") as f:
     writer = csv.writer(f,quoting=csv.QUOTE_ALL)
     writer.writerow(["UID","Creator","Country","Project Name","Website","Version","Description","Primary Types","Additional Types","Documentation","Hardware License","Software License","Documentation License","Certification Date"])
     for row in data:
